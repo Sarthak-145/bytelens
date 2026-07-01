@@ -1,6 +1,8 @@
 import net from 'net';
 import handleRequest from './handlerequest.js';
 
+let emitStatus = {};
+
 const server = net.createServer((socket) => {
   let buffer = Buffer.alloc(0);
   // state to handle multirequests
@@ -11,6 +13,15 @@ const server = net.createServer((socket) => {
   const MAX_BODY_SIZE = 1024 * 1024;
   socket.on('data', (chunk) => {
     buffer = Buffer.concat([buffer, chunk]);
+
+    // send the snapshot of buffer change
+    emitStatus = {
+      event: 'buffer_changed',
+      buffer: buffer,
+      length: buffer.length,
+      chunk: chunk,
+    };
+
     console.log('this chunk is:', chunk.toString());
 
     while (true) {
