@@ -5,5 +5,5 @@ export const emitStatus = (status) => {
 };
 
 export const setStatusEmitter = (fn) => {
-  emitter(fn);
+  emitter = fn;
 };
