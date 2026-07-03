@@ -18,11 +18,28 @@ const server = http.createServer(async (req, res) => {
       res.end('Internal server error');
     }
   } else if (req.url === '/app.js') {
-    //send js file
+    try {
+      const js = await fs.readFile(new URL('./app/app.js', import.meta.url));
+      res.writeHead(200, { 'Content-Type': 'application/javascript' });
+      res.end(js);
+    } catch (err) {
+      res.writeHead(500);
+      res.end('Internal server error');
+    }
+  } else if (req.url === '/render.js') {
+    try {
+      const js = await fs.readFile(new URL('./app/render.js', import.meta.url));
+      res.writeHead(200, { 'Content-Type': 'application/javascript' });
+      res.end(js);
+    } catch (err) {
+      res.writeHead(500);
+      res.end('Internal server error');
+    }
   } else if (req.url == '/style.css') {
     //send css file
   } else {
-    //send 404
+    res.writeHead(404);
+    res.end("The page you are looking for doesn't exist");
   }
 });
 
