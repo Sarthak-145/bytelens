@@ -6,13 +6,19 @@ import fs from 'fs/promises';
 // global file path => console.log(import.meta.url);
 
 const server = http.createServer(async (req, res) => {
-  if (req.url === '/') {
+  if (req.method === 'GET' && req.url === '/') {
     try {
       const html = await fs.readFile(
         new URL('./app/index.html', import.meta.url)
       );
       res.writeHead(200, { 'Content-Type': 'text/html' });
       res.end(html);
+    } catch (err) {
+      res.writeHead(500);
+      res.end('Internal server error');
+    }
+  } else if (req.method === 'POST' && req.url === '/') {
+    try {
     } catch (err) {
       res.writeHead(500);
       res.end('Internal server error');
@@ -46,10 +52,10 @@ const server = http.createServer(async (req, res) => {
 const wss = new WebSocketServer({ server });
 
 wss.on('connection', (ws) => {
-  console.log('Frontend connected\n');
+  console.log('websocket is on, client is connected\n');
 
   ws.on('close', () => {
-    console.log('Frintend disconnected');
+    console.log('websocket is off\n');
   });
 });
 
