@@ -17,8 +17,11 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(500);
       res.end('Internal server error');
     }
-  } else if (req.method === 'POST' && req.url === '/') {
+  } else if (req.method === 'POST' && req.url === '/parse') {
     try {
+      const body = await parseBody(req);
+      const data = JSON.parse(body);
+      console.log('the body recieved from client: ', data);
     } catch (err) {
       res.writeHead(500);
       res.end('Internal server error');
@@ -48,6 +51,20 @@ const server = http.createServer(async (req, res) => {
     res.end("The page you are looking for doesn't exist");
   }
 });
+
+const parseBody = (req) => {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+
+    req.on('data', (chunk) => {
+      chunks.push(chunk);
+    });
+    req.on('end', () => {
+      resolve(Buffer.concat(chunks));
+    });
+    req.on('error', reject);
+  });
+};
 
 const wss = new WebSocketServer({ server });
 
