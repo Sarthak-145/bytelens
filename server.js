@@ -2,6 +2,7 @@ import http from 'http';
 import { WebSocketServer } from 'ws';
 import { setStatusEmitter } from './debug.js';
 import fs from 'fs/promises';
+import { parser } from './parser/parser.js';
 
 // global file path => console.log(import.meta.url);
 
@@ -22,9 +23,18 @@ const server = http.createServer(async (req, res) => {
       const body = await parseBody(req);
       const data = JSON.parse(body);
       console.log('the body recieved from client: ', data);
+      if (data.request) console.log('Request obj from data: ', data.request);
+      // chop the request value, from request, from buffer
+      const rawRequest = Buffer.from(data.request, 'utf-8');
+
+      //call the manual parser
+      const parsedRequest = parser(rawRequest);
+      console.log('parsed request: ', parsedRequest);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(parsedRequest, null, 2));
     } catch (err) {
       res.writeHead(500);
-      res.end('Internal server error');
+      res.end('Internal server error', err);
     }
   } else if (req.url === '/app.js') {
     try {
